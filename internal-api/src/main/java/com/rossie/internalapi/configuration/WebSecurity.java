@@ -1,8 +1,6 @@
 package com.rossie.internalapi.configuration;
 
-import com.rossie.internalapi.consts.Roles;
 import com.rossie.internalapi.filter.AuthenticationApiKeyFilter;
-import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,7 +39,7 @@ public class WebSecurity {
         http.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.addFilterBefore(privateEndpointApiKeyFilter(), BasicAuthenticationFilter.class);
-        http.authorizeHttpRequests((authz) -> authz
+        http.authorizeHttpRequests(authz -> authz
                 .requestMatchers("/api/private/**").authenticated()
                 .requestMatchers("/api/public/**").permitAll()
             )
