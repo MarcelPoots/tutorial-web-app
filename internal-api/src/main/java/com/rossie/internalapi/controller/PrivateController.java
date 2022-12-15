@@ -1,5 +1,6 @@
 package com.rossie.internalapi.controller;
 
+import com.rossie.internalapi.model.InfoResult;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,7 +19,8 @@ public class PrivateController {
      *
      */
     @GetMapping("/info")
-    public ResponseEntity<String> info(){
-        return new ResponseEntity<>("Here is some private info: " + new Date() , HttpStatus.OK);
+    public ResponseEntity<InfoResult> info(){
+        InfoResult infoResult = new InfoResult(new Date(), "Some private info..." );
+        return new ResponseEntity<>( infoResult , HttpStatus.OK);
     }
 }

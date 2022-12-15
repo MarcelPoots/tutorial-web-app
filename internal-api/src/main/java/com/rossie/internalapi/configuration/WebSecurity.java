@@ -26,11 +26,6 @@ public class WebSecurity {
     @Value("${security.api-keys}")
     private String[] validApiKeys;
 
-    @PostConstruct
-    public void init(){
-        System.err.println(validApiKeys);
-    }
-
     @Bean
     OncePerRequestFilter privateEndpointApiKeyFilter() {
         AuthenticationApiKeyFilter authenticationApiKeyFilter =

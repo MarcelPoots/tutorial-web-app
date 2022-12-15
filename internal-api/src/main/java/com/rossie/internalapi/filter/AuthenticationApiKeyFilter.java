@@ -61,7 +61,7 @@ public class AuthenticationApiKeyFilter extends OncePerRequestFilter {
     }
 
     protected boolean isCallPrivateEndpoint(HttpServletRequest request) {
-        return request.getServletPath().contains(Endpoints.API_V1_PRIVATE_END_POINT);
+        return request.getRequestURI().contains(Endpoints.API_V1_PRIVATE_END_POINT);
     }
 
 }
