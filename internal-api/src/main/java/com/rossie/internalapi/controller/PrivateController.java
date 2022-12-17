@@ -14,7 +14,7 @@ import java.util.Date;
 public class PrivateController {
 
     /**
-     * Place this GET request in Postman: http://localhost:8081/internal-api/api/private/v1
+     * Place this GET request in Postman: http://localhost:8081/internal-api/api/private/v1/info
      * with X-API_Key in security headers with key :
      *
      */

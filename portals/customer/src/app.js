@@ -33,13 +33,31 @@ app.get('/about', (req, res)=>{
     })
 })
 
+app.get('/logout', (req, res)=>{
+    res.render('login', {
+        title: 'Login page'
+    })
+})
+
+app.get('/login', (req, res)=>{
+    res.render('login', {
+        title: 'Login page'
+    })
+})
+
+app.get('/register', (req, res)=>{
+    res.render('register', {
+        title: 'Register page'
+    })
+})
+
 app.get('/help', (req, res)=>{
     res.render('help', {
         title: 'Help page',  href:"./css/styles.css"
     })
 })
 
-app.get('/login', (req, res) =>{
+app.get('/search', (req, res) =>{
     res.send({ name : 'john', info : 'good guy'});
 })
 
