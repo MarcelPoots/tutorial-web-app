@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Bladi</title>
+    <link rel="icon" href="/img/marcel.png">
+    <link rel="stylesheet" href="./css/styles.css">
+
+</head>
+
+<body>
+    <div class="main-content">
+        <h2> {{title}} </h2>
+        <form action="/login" method="POST">
+
+            <div>
+                <label for="email">Email</label>
+                <input type="email" name="email" id="email">
+            </div>
+            <div>
+                <label for="password">Password</label>
+                <input type="password" name="password" id="password">
+            </div>
+            <button>Login</button>
+        </form>
+
+        {{>footer}}
+</body>
+
+</html>

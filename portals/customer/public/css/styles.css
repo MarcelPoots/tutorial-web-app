@@ -41,3 +41,7 @@ header a {
 .portrait {
     width: 250px;
 }
+
+#message-2 {
+    color: green;
+}

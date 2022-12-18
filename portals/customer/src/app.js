@@ -1,6 +1,6 @@
 const path = require('path')
 const express = require('express')
-const ejs = require('ejs')
+const hbs = require('hbs')
 
 
 const app = express()
@@ -12,69 +12,70 @@ const viewsPath = path.join(__dirname, '../templates/views')
 const partialsPath = path.join(__dirname, '../templates/partials')
 
 // Setup handlebars engine and views location
-app.set('view-engine', 'ejs')
+app.set('view engine', 'hbs')
 app.set('views', viewsPath)
+hbs.registerPartials(partialsPath)
 
- 
 // Setup static directory to serve
 app.use(express.static(publicDirectoryPath))
 
-app.use(express.urlencoded({extended : false}))
-
 app.get('', (req, res)=>{
-
-    res.render('index.ejs', {
-        title: 'Customer portal...'
+    res.render('index', {
+        title: 'Customer portal'
     })
 })
 
-app.get('/login', (req, res)=>{
-    res.render('login.ejs', {
-        title: 'Login page'
+app.get('/about', (req, res)=>{
+    res.render('about', {
+        title: 'About page',
+        name: 'Marchello'
+
     })
 })
 
-app.post('/login', (req, res)=>{
-    res.render('index.ejs', {
-        title: 'Bla logged in'
+app.get('/help', (req, res)=>{
+    res.render('help', {
+        title: 'Help page',  href:"./css/styles.css"
     })
 })
 
-app.get('/logout', (req, res)=>{
-    res.render('login.ejs', {
-        title: 'Login page'
+app.get('/login', (req, res) =>{
+    res.render('login', {
+        title: 'Login please'
     })
 })
 
-app.get('/register', (req, res)=>{
-    res.render('register.ejs', {
-        title: 'Register page'
+app.post('/login', (req, res) =>{
+    res.render('index', {
+        title: 'Successfull Login'
     })
 })
 
-app.post('/register', (req, res)=>{
-    console.log('Logged in ' + req.body.name)
-    res.render('index.ejs', {
-        title: 'Login page'
+app.get('/logout', (req, res) =>{
+    res.render('login', {
+        title: 'Successfull logged out'
     })
-
 })
 
-app.get('/search', (req, res) =>{
-    res.send({ name : 'john', info : 'good guy'});
+app.get('/register', (req, res) =>{
+    res.render('register', {
+        title: 'Register'
+    })
 })
 
+app.post('/register', (req, res) =>{
+    res.render('/index', {
+        title: 'Successfull register'
+    })
+})
 
+app.get('/help/*', (req, res) =>{
+    res.render('404', {errorMessage:'The help topic could not be found', href:"../css/styles.css"})
+})
 
-
-// This route will handle all the requests that are 
-// not handled by any other route handler. In 
-// this hanlder we will redirect the user to 
-// an error page with NOT FOUND message and status
-// code as 404 (HTTP status code for NOT found)
-app.all('*', (req, res) => {
-    res.render('404.ejs', {errorMessage:'Error 404: The page could not be found', href:"./css/styles.css"})
-});
+app.get('*', (req, res) =>{
+    res.render('404', {errorMessage:'Error 404: The page could not be found', href:"./css/styles.css"})
+})
 
 app.listen(port, ()=>{
     console.info('Server is up on port ' + port)
