@@ -1,29 +1,36 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Bladi</title>
-        <link rel="icon" href="/img/marcel.png">
-        <link rel="stylesheet"  href="./css/styles.css">
 
-    </head>
-    <body>
-        <div class="main-content">
-            {{>header}}
+<head>
+    <title>Bladi</title>
+    <link rel="icon" href="/img/marcel.png">
+    <link rel="stylesheet" href="./css/styles.css">
+
+</head>
+
+<body>
+    <div class="main-content">
+        <h2> {{title}} </h2>
 
         <form action="/register" method="POST">
-            <label for="name">Name</label>
-            <input type="text" name="name" id="name">
-
-            <label for="email">Email</label>
-            <input type="email" name="email" id="email">
-
-            <label for="password">Password</label>
-            <input type="password" name="password" id="password">
-
+            <div>
+                <label for="name">Name</label>
+                <input type="text" name="name" id="name">
+            </div>
+            <div>
+                <label for="email">Email</label>
+                <input type="email" name="email" id="email">
+            </div>
+            <div>
+                <label for="password">Password</label>
+                <input type="password" name="password" id="password">
+            </div>
             <button>register</button>
         </form>
-       
-        </div>
-        {{>footer}}
-    </body>
+        <a href="/login">Back to login</a>
+
+    </div>
+    {{>footer}}
+</body>
+
 </html>

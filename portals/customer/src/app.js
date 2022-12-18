@@ -64,7 +64,7 @@ app.get('/register', (req, res) =>{
 })
 
 app.post('/register', (req, res) =>{
-    res.render('/index', {
+    res.render('index', {
         title: 'Successfull register'
     })
 })
