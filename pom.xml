@@ -12,6 +12,7 @@
     <modules>
         <module>internal-api</module>
         <module>portals</module>
+        <module>authentication</module>
     </modules>
 
     <properties>

@@ -1,4 +1,11 @@
- body {
+form {
+    display: grid; 
+    gap: .5rem; 
+    grid-template-columns: auto 1fr; 
+    max-width: 500px; margin: 0 auto;
+}
+
+body {
     color: #333333;
     font-family: arial;
     max-width: 650px;

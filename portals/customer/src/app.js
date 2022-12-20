@@ -1,6 +1,9 @@
 const path = require('path')
 const express = require('express')
 const hbs = require('hbs')
+const dotenv = require('dotenv')
+dotenv.config()
+
 
 
 const app = express()
