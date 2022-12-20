@@ -2,9 +2,8 @@ const path = require('path')
 const express = require('express')
 const hbs = require('hbs')
 const dotenv = require('dotenv')
+const http = require('http')
 dotenv.config()
-
-
 
 const app = express()
 const port = process.env.PORT || 3000
@@ -48,7 +47,32 @@ app.get('/login', (req, res) =>{
     })
 })
 
-app.post('/login', (req, res) =>{
+app.post('/login', (req, res) => {
+
+    const options = {
+        hostname: process.env.AUTHENTICATION_HOST_NAME,
+        port: process.env.AUTHENTICATION_PORT,
+        path: '/authenticate',
+        method: 'POST'
+    };
+
+    http.request(options, (res) => {
+        let data = ''
+         
+        res.on('data', (chunk) => {
+            data += chunk;
+        });
+        
+        // Ending the response 
+        res.on('end', () => {
+            console.log('Body:', data)
+            console.log('Body:', JSON.parse(data))
+        });
+           
+    }).on("error", (err) => {
+        console.log("Error: ", err)
+    }).end()
+
     res.render('index', {
         title: 'Successfull Login'
     })
