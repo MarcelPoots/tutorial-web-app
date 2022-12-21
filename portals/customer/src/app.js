@@ -76,6 +76,7 @@ app.post('/login', (req, res) => {
             console.log('Body:', JSON.parse(data))
     
             if (response.statusCode === 200) {
+                console.log(response.headers)
                 res.render('index', {title: 'Successfull Login'})
             } else {
                 res.render('login', {

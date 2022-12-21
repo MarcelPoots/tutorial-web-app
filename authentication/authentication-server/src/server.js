@@ -1,6 +1,7 @@
 const dotenv = require('dotenv')
 dotenv.config()
 const express = require('express')
+const jwt = require('jsonwebtoken')
 const app = express()
 
 
@@ -23,7 +24,12 @@ app.post("/authenticate", (req, res)=>{
     const credentials = Buffer.from(base64Credentials, 'base64').toString('UTF-8')
     const [username, password] = credentials.split(':')
     user.userName = username
-    res.json(user);
+    const token = jwt.sign(user, process.env.AUTHENTICATION_TOKEN_SECRET)
+    
+    //res.header.authorization = 'Bearer ' + token
+    //res.json({accessToken : token }
+    res.setHeader('authorization','Bearer ' + token)
+    return res.status(200).json({result:'success'})
 })
 
 app.listen(port, ()=>{
