@@ -1,2 +1,4 @@
 node_modules
-.env
+
+### in normal project you would not want to add .env. But for sake of turorial it is not here
+# .env
