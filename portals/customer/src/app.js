@@ -3,9 +3,13 @@ const express = require('express')
 const hbs = require('hbs')
 const dotenv = require('dotenv')
 const http = require('http')
+const bodyParser = require('body-parser')
+
 dotenv.config()
 
 const app = express()
+app.use(bodyParser.urlencoded({ extended: false }));
+
 const port = process.env.PORT || 3000
 
 // Define paths for Express config
@@ -49,33 +53,42 @@ app.get('/login', (req, res) =>{
 
 app.post('/login', (req, res) => {
 
+    let credentials = req.body.email + ':' + req.body.password
+    
     const options = {
         hostname: process.env.AUTHENTICATION_HOST_NAME,
         port: process.env.AUTHENTICATION_PORT,
         path: '/authenticate',
+        headers: {'Authorization': `Basic ${Buffer.from(credentials).toString('base64')}`},
         method: 'POST'
     };
 
-    http.request(options, (res) => {
+    http.request(options, (response) => {
         let data = ''
          
-        res.on('data', (chunk) => {
+        response.on('data', (chunk) => {
             data += chunk;
         });
         
         // Ending the response 
-        res.on('end', () => {
-            console.log('Body:', data)
+        response.on('end', () => {
+
             console.log('Body:', JSON.parse(data))
+    
+            if (response.statusCode === 200) {
+                res.render('index', {title: 'Successfull Login'})
+            } else {
+                res.render('login', {
+                    title: 'Login error',
+                    errorMessage : 'Reason: Authentication error'
+                })
+            }
         });
            
     }).on("error", (err) => {
         console.log("Error: ", err)
     }).end()
-
-    res.render('index', {
-        title: 'Successfull Login'
-    })
+    
 })
 
 app.get('/logout', (req, res) =>{

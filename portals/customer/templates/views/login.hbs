@@ -5,11 +5,19 @@
     <title>Bladi</title>
     <link rel="icon" href="/img/favicon.png">
     <link rel="stylesheet" href="./css/styles.css">
+    <script>
+        Handlebars.registerHelper('eq', (a, b) => a == b)
+    </script>
 </head>
 
 <body>
     <div class="main-content">
         <h2> {{title}} </h2>
+
+        <div style="color: brown;">
+            {{errorMessage}}
+        </div>
+
         <form action="/login" method="POST">
             <div>
                 <label for="email">Email</label>
@@ -19,6 +27,7 @@
                 <label for="password">Password</label>
                 <input type="password" name="password" id="password">
             </div>
+
             <button>Login</button>
         </form>
         <p></p>
