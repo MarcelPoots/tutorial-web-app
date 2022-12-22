@@ -4,6 +4,8 @@ const hbs = require('hbs')
 const dotenv = require('dotenv')
 const http = require('http')
 const bodyParser = require('body-parser')
+const bcrypt = require('bcrypt')
+const { stringify } = require('querystring')
 
 dotenv.config()
 
@@ -104,8 +106,59 @@ app.get('/register', (req, res) =>{
     })
 })
 
-app.post('/register', (req, res) =>{
-    //const hashedPassword = await bcrypt.hash(password, 10)
+app.post('/register', async (req, res) =>{
+   
+
+    const hashedPassword = await bcrypt.hash(req.body.password, 10)
+    let registerinfo = req.body.email + ':' + hashedPassword + ':' + req.body.name
+    const user = {
+      name: req.body.name,
+      email: req.body.email,
+      password: hashedPassword
+    }
+
+        
+    const options = {
+        hostname: process.env.AUTHENTICATION_HOST_NAME,
+        port: process.env.AUTHENTICATION_PORT,
+        path: '/register',
+        method: 'POST',
+        headers: {'Authorization': `Basic ${Buffer.from(registerinfo).toString('base64')}`}
+    };
+
+    http.request(options, (response) => {
+        let data = ''
+         
+        response.on('data', (chunk) => {
+            data += chunk;
+        });
+        
+        // Ending the response 
+        response.on('end', () => {
+
+            console.log('Body:', JSON.parse(data))
+    
+            if (response.statusCode === 200) {
+                console.log(response.headers)
+                res.render('index', {title: 'Successfull register'})
+            } else {
+                res.render('register', {
+                    title: 'register error',
+                    errorMessage : 'Reason: register error'
+                })
+            }
+        });
+           
+    }).on("error", (err) => {
+        console.log("Error: ", err)
+    }).end()
+
+
+    
+    
+    //postReq.write('bladi')c
+   // postReq.end()
+
     res.render('index', {
         title: 'Successfull register'
     })
