@@ -105,6 +105,7 @@ app.get('/register', (req, res) =>{
 })
 
 app.post('/register', (req, res) =>{
+    //const hashedPassword = await bcrypt.hash(password, 10)
     res.render('index', {
         title: 'Successfull register'
     })
