@@ -49,7 +49,7 @@ app.get('/help', (req, res)=>{
 
 app.get('/login', (req, res) =>{
     res.render('login', {
-        title: 'Login please'
+        title: 'Login'
     })
 })
 
@@ -77,9 +77,17 @@ app.post('/login', (req, res) => {
 
             console.log('Body:', JSON.parse(data))
     
-            if (response.statusCode === 200) {
-                console.log(response.headers)
-                res.render('index', {title: 'Successfull Login'})
+            if (response.statusCode === 200 && 
+                response.headers.authorization && 
+                response.headers.authorization.indexOf('Bearer ') !== -1) {
+
+                const token =  response.headers.authorization.split(' ')[1]
+                const jwt = parseJwt(token);
+
+                console.log(jwt)
+
+
+                res.render('index', {title: 'Welcome ' + jwt.name})
             } else {
                 res.render('login', {
                     title: 'Login error',
@@ -94,9 +102,13 @@ app.post('/login', (req, res) => {
     
 })
 
+function parseJwt (token) {
+    return JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+}
+
 app.get('/logout', (req, res) =>{
     res.render('login', {
-        title: 'Successfull logged out'
+        title: 'Login'
     })
 })
 
@@ -107,16 +119,8 @@ app.get('/register', (req, res) =>{
 })
 
 app.post('/register', async (req, res) =>{
-   
 
-    const hashedPassword = await bcrypt.hash(req.body.password, 10)
-    let registerinfo = req.body.email + ':' + hashedPassword + ':' + req.body.name
-    const user = {
-      name: req.body.name,
-      email: req.body.email,
-      password: hashedPassword
-    }
-
+    let registerinfo = req.body.email + ':' + req.body.password + ':' + req.body.name
         
     const options = {
         hostname: process.env.AUTHENTICATION_HOST_NAME,
@@ -140,28 +144,24 @@ app.post('/register', async (req, res) =>{
     
             if (response.statusCode === 200) {
                 console.log(response.headers)
-                res.render('index', {title: 'Successfull register'})
+                res.render('login', {title: 'Login', message :'Successfull register, please login'})
             } else {
                 res.render('register', {
-                    title: 'register error',
-                    errorMessage : 'Reason: register error'
+                    title: 'Register',
+                    message : 'Reason: register error'
                 })
             }
         });
            
     }).on("error", (err) => {
         console.log("Error: ", err)
+        res.render('register', {
+            title: 'Error: ' + err
+        })
+    
     }).end()
 
 
-    
-    
-    //postReq.write('bladi')c
-   // postReq.end()
-
-    res.render('index', {
-        title: 'Successfull register'
-    })
 })
 
 app.get('/help/*', (req, res) =>{

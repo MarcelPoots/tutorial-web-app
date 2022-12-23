@@ -7,14 +7,7 @@ const app = express()
 
 const port = process.env.PORT || 3000
 
-const user = {
-    name : 'Marcel',
-    username : '',
-    roles : ['USER', 'DEVELOPER'],
-    hashedPassword: '$2b$10$kiEPGO0vnptDu93UqmjoOOI1pRhBzQLPtUoMS5x24T2kH/Lh7icPe'
-}
-
-const users = [user]
+const users = []
 
 app.post("/authenticate", async (req, res)=>{
 
@@ -25,22 +18,22 @@ app.post("/authenticate", async (req, res)=>{
     // verify auth credentials
     const base64Credentials =  req.headers.authorization.split(' ')[1]
     const credentials = Buffer.from(base64Credentials, 'base64').toString('UTF-8')
-    console.log(credentials)
     const [username, password] = credentials.split(':')
-    //const hashedPassword = await bcrypt.hash(password, 10)
 
-    //console.log(hashedPassword)
+    const user = users.find(user => user.username === username)
+    if (!user) {
+        console.error('User ' + username + ' not found.')
+        return res.status(404).json({ message: 'User not found' })
+    }
 
     if (await  bcrypt.compare(password, user.hashedPassword) ) {
-        user.username = username
-        const token = jwt.sign({name: user.name, username: user.userName, roles: user.roles}, process.env.AUTHENTICATION_TOKEN_SECRET, {expiresIn: '5M'})
+        const token = jwt.sign({name: user.name, username: user.username, roles: user.roles}, process.env.AUTHENTICATION_TOKEN_SECRET, {expiresIn: '5M'})
         res.setHeader('authorization','Bearer ' + token)
         return res.status(200).json({result:'success'})
 
     } else {
         return res.status(401).json({result:'failure'})
     }
-
 
 })
 
@@ -53,16 +46,15 @@ app.post("/register", async (req, res)=>{
     // verify auth credentials
     const base64Credentials =  req.headers.authorization.split(' ')[1]
     const registerInfo = Buffer.from(base64Credentials, 'base64').toString('UTF-8')
-    console.log('Register ' + registerInfo)
     const [username, password, name] = registerInfo.split(':')
 
-    // const user = users.find(user => user.email === req.body.user.email)
-    // if (user != null ) {
-    //     return res.status(401).json({ message: 'User already registered' })
-    // }
+    const user = users.find(user => user.username === username)
+    if (user) {
+        return res.status(401).json({ message: 'User already registered' })
+    }
     const hashedPassword = await bcrypt.hash(password, 10)
-    const registeredUser = { name: name, username : username, password: hashedPassword }
-    users.push(registeredUser)
+
+    users.push({ name: name, username : username, hashedPassword: hashedPassword , roles: ['USER']})
     console.log(users)
 
     return res.status(200).json({ message: 'Success' })
