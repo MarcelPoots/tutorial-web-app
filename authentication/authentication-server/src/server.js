@@ -27,7 +27,7 @@ app.post("/authenticate", async (req, res)=>{
     }
 
     if (await  bcrypt.compare(password, user.hashedPassword) ) {
-        const token = jwt.sign({name: user.name, username: user.username, roles: user.roles}, process.env.AUTHENTICATION_TOKEN_SECRET, {expiresIn: '5M'})
+        const token = jwt.sign({name: user.name, username: user.username, roles: user.roles}, process.env.AUTHENTICATION_TOKEN_SECRET, {expiresIn: '10S'})
         res.setHeader('authorization','Bearer ' + token)
         return res.status(200).json({result:'success'})
 

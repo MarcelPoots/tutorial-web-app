@@ -6,6 +6,8 @@ const http = require('http')
 const bodyParser = require('body-parser')
 const bcrypt = require('bcrypt')
 const { stringify } = require('querystring')
+const jwt = require('jsonwebtoken')
+const localStorage = require('localStorage')
 
 dotenv.config()
 
@@ -33,7 +35,7 @@ app.get('', (req, res)=>{
     })
 })
 
-app.get('/about', (req, res)=>{
+app.get('/about', isAuthenticated, (req, res)=>{
     res.render('about', {
         title: 'About page',
         name: 'Marchello'
@@ -41,7 +43,7 @@ app.get('/about', (req, res)=>{
     })
 })
 
-app.get('/help', (req, res)=>{
+app.get('/help', isAuthenticated, (req, res)=>{
     res.render('help', {
         title: 'Help page',  href:"./css/styles.css"
     })
@@ -82,10 +84,7 @@ app.post('/login', (req, res) => {
                 response.headers.authorization.indexOf('Bearer ') !== -1) {
 
                 const token =  response.headers.authorization.split(' ')[1]
-                const jwt = parseJwt(token);
-
-                console.log(jwt)
-
+                localStorage.setItem('token', token)
 
                 res.render('index', {title: 'Welcome ' + jwt.name})
             } else {
@@ -105,6 +104,27 @@ app.post('/login', (req, res) => {
 function parseJwt (token) {
     return JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
 }
+
+function  isAuthenticated ( req, res, next) {
+    const token = localStorage.getItem('token')
+    try {
+        jwt.verify(token, process.env.AUTHENTICATION_TOKEN_SECRET )
+        var parsedJwt = parseJwt(token);
+        const roles = parsedJwt.roles;
+
+        if (roles.find(role => role === 'USER')) {
+            return next()
+        }
+    } catch (error) {
+        console.error('ERROR: ' + error)
+        // do nothing, could expired token
+    }
+    res.render('login', {
+        title: 'Login'
+    })
+
+}
+
 
 app.get('/logout', (req, res) =>{
     res.render('login', {
@@ -164,7 +184,7 @@ app.post('/register', async (req, res) =>{
 
 })
 
-app.get('/help/*', (req, res) =>{
+app.get('/help/*', isAuthenticated, (req, res) =>{
     res.render('404', {errorMessage:'The help topic could not be found', href:"../css/styles.css"})
 })
 
