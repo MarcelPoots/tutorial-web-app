@@ -29,7 +29,7 @@ hbs.registerPartials(partialsPath)
 // Setup static directory to serve
 app.use(express.static(publicDirectoryPath))
 
-app.get('', (req, res)=>{
+app.get('', isAuthenticated, (req, res)=>{
     res.render('index', {
         title: 'Customer portal'
     })
@@ -49,7 +49,7 @@ app.get('/help', isAuthenticated, (req, res)=>{
     })
 })
 
-app.get('/login', (req, res) =>{
+app.get('/login', isNotAuthenticated,  (req, res) =>{
     res.render('login', {
         title: 'Login'
     })
@@ -85,8 +85,9 @@ app.post('/login', (req, res) => {
 
                 const token =  response.headers.authorization.split(' ')[1]
                 localStorage.setItem('token', token)
+                const parsedJwt = parseJwt(token);
 
-                res.render('index', {title: 'Welcome ' + jwt.name})
+                res.render('index', {title: 'Welcome ' + parsedJwt.name})
             } else {
                 res.render('login', {
                     title: 'Login error',
@@ -107,24 +108,56 @@ function parseJwt (token) {
 
 function  isAuthenticated ( req, res, next) {
     const token = localStorage.getItem('token')
+    var message = ''
     try {
         jwt.verify(token, process.env.AUTHENTICATION_TOKEN_SECRET )
-        var parsedJwt = parseJwt(token);
+        const parsedJwt = parseJwt(token);
         const roles = parsedJwt.roles;
 
         if (roles.find(role => role === 'USER')) {
             return next()
         }
     } catch (error) {
+        localStorage.setItem('token', null) // clear token cookie
+        message = error
+
+        if (error.toString().includes('expired')) {
+            message = 'Session has expired. Please login again'
+        } else {
+            message = 'Auhentication error'
+        }
+
         console.error('ERROR: ' + error)
         // do nothing, could expired token
     }
     res.render('login', {
-        title: 'Login'
+        title: 'Login', message : message
     })
-
 }
 
+function  isNotAuthenticated ( req, res, next) {
+    
+    const token = localStorage.getItem('token')
+    if (!token) return next() // no token means, not logged in
+
+    try {
+        jwt.verify(token, process.env.AUTHENTICATION_TOKEN_SECRET )
+        const parsedJwt = parseJwt(token);
+        const roles = parsedJwt.roles;
+        if (roles.find(role => role === 'USER')) {
+            // User is still logged in
+            res.redirect('/')        
+        }
+    } catch (error) {
+        localStorage.setItem('token', null) // clear token cookie
+        // Yes, user is not logged in, or even unknown
+        return next()
+        console.error('ERROR: ' + error)
+    }
+
+    // Else we seem to be logged in, just redirect to index
+    res.redirect('/')
+}
 
 app.get('/logout', (req, res) =>{
     res.render('login', {
@@ -132,7 +165,7 @@ app.get('/logout', (req, res) =>{
     })
 })
 
-app.get('/register', (req, res) =>{
+app.get('/register', isNotAuthenticated, (req, res) =>{
     res.render('register', {
         title: 'Register'
     })
