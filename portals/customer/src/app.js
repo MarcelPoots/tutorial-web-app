@@ -108,7 +108,7 @@ function parseJwt (token) {
 
 function  isAuthenticated ( req, res, next) {
     const token = localStorage.getItem('token')
-    var message = ''
+    let message = ''
     try {
         jwt.verify(token, process.env.AUTHENTICATION_TOKEN_SECRET )
         const parsedJwt = parseJwt(token);
@@ -119,7 +119,7 @@ function  isAuthenticated ( req, res, next) {
         }
     } catch (error) {
         localStorage.setItem('token', null) // clear token cookie
-        message = error
+
 
         if (error.toString().includes('expired')) {
             message = 'Session has expired. Please login again'
@@ -151,8 +151,7 @@ function  isNotAuthenticated ( req, res, next) {
     } catch (error) {
         localStorage.setItem('token', null) // clear token cookie
         // Yes, user is not logged in, or even unknown
-        return next()
-        console.error('ERROR: ' + error)
+        return next
     }
 
     // Else we seem to be logged in, just redirect to index
@@ -201,7 +200,7 @@ app.post('/register', async (req, res) =>{
             } else {
                 res.render('register', {
                     title: 'Register',
-                    message : 'Reason: register error'
+                    message : 'Reason: ' + JSON.parse(data).message
                 })
             }
         });

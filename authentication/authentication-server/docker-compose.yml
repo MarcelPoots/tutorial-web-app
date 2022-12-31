@@ -1,0 +1,12 @@
+version: '1'
+
+services:
+  mongo:
+    image: 'mongo:6.0.3'
+    ports:
+      - '27017:27017'
+    volumes:
+      - 'mongo:/data/db'
+
+volumes:
+  mongo:
