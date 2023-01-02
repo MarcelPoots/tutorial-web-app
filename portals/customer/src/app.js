@@ -114,7 +114,7 @@ function  isAuthenticated ( req, res, next) {
         const parsedJwt = parseJwt(token);
         const roles = parsedJwt.roles;
 
-        if (roles.find(role => role === 'USER')) {
+        if (roles && roles.find(role => role === 'USER')) {
             return next()
         }
     } catch (error) {
@@ -128,7 +128,7 @@ function  isAuthenticated ( req, res, next) {
         }
 
         console.error('ERROR: ' + error)
-        // do nothing, could expired token
+        // do nothing, could be 'expired token'
     }
     res.render('login', {
         title: 'Login', message : message
@@ -144,14 +144,14 @@ function  isNotAuthenticated ( req, res, next) {
         jwt.verify(token, process.env.AUTHENTICATION_TOKEN_SECRET )
         const parsedJwt = parseJwt(token);
         const roles = parsedJwt.roles;
-        if (roles.find(role => role === 'USER')) {
+        if (roles && roles.find(role => role === 'USER')) {
             // User is still logged in
             res.redirect('/')        
         }
     } catch (error) {
         localStorage.setItem('token', null) // clear token cookie
         // Yes, user is not logged in, or even unknown
-        return next
+        return next()
     }
 
     // Else we seem to be logged in, just redirect to index

@@ -32,19 +32,24 @@ app.post("/authenticate", async (req, res) => {
     const credentials = Buffer.from(base64Credentials, 'base64').toString('UTF-8')
     const [username, password] = credentials.split(':')
 
-    const user = users.find(user => user.username === username)
-    if (!user) {
-        console.error('User ' + username + ' not found.')
-        return res.status(404).json({ message: 'User not found' })
-    }
+    try {
+        const user = await Principal.findOne({ email: username } )
+        if (!user) {
+            console.log(username + ' niet gevonden')
+            return res.status(404).json({ message: 'User not found' })
+        }
 
-    if (await bcrypt.compare(password, user.hashedPassword)) {
-        const token = jwt.sign({ name: user.name, username: user.username, roles: user.roles }, process.env.AUTHENTICATION_TOKEN_SECRET, { expiresIn: '10S' })
-        res.setHeader('authorization', 'Bearer ' + token)
-        return res.status(200).json({ result: 'success' })
+        if (await bcrypt.compare(password, user.hashedPassword)) {
+            const token = jwt.sign({ name: user.name, username: user.username, roles: user.roles }, process.env.AUTHENTICATION_TOKEN_SECRET, { expiresIn: '10S' })
+            res.setHeader('authorization', 'Bearer ' + token)
+            return res.status(200).json({ result: 'success' })
+    
+        } else {
+            return res.status(401).json({ result: 'failure' })
+        }
 
-    } else {
-        return res.status(401).json({ result: 'failure' })
+    } catch (err) {
+        console.log('Error ' + err)
     }
 
 })
@@ -60,30 +65,28 @@ app.post("/register", async (req, res) => {
     const registerInfo = Buffer.from(base64Credentials, 'base64').toString('UTF-8')
     const [username, password, name] = registerInfo.split(':')
 
-    await Principal.find({email : username}, function (err, docs) {
-        if (err){
-            console.log(err);
+    try {
+        const obj = await Principal.findOne({ email: username } )
+        if (obj) {
+            console.log(obj.email + ' gevonden')
+            return res.status(401).json({ message: obj.email + ' already registered' })
         }
-        else{
-            console.log("First function call : ", docs);
+    } catch (err) {
+        console.log('Error ' + err)
+    }
 
-            if (docs.length > 0) {
-                console.log(docs[0].email + ' gevonden')
-                return res.status(401).json({ message: docs[0].email + ' already registered' })
-            }
-        }
-    })
-    
 
 
     const hashedPassword = await bcrypt.hash(password, 10)
     const principal = new Principal({
         email: username,
         name: name,
-        hashedPassword: hashedPassword
+        hashedPassword: hashedPassword,
+        roles : ['USER']
     })
 
     try {
+        console.log("Going to save : ", principal);
         await principal.save()
         return res.status(200).json({ message: 'Success' })
     } catch (err) {
