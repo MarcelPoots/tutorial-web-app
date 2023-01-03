@@ -1,6 +1,7 @@
 package com.rossie.internalapi.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rossie.internalapi.config.TestConfig;
 import com.rossie.internalapi.configuration.WebSecurity;
 import com.rossie.internalapi.model.InfoResult;
 import org.junit.jupiter.api.Assertions;
@@ -33,12 +34,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 )
 @ContextConfiguration(classes = {
         PublicController.class,
-        WebSecurity.class
+        WebSecurity.class,
+        TestConfig.class
 })
-public class PublicControllerTest {
+class PublicControllerTest {
 
         private static final String REST_API_ENDPOINT = "/api/public/v1";
 
+        @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
         @Autowired
         private MockMvc mockMvc;
 
@@ -46,7 +49,7 @@ public class PublicControllerTest {
         private ObjectMapper objectMapper;
 
         @Test
-        public void shouldGetResultFromPublicEndpoint() throws Exception {
+        void shouldGetResultFromPublicEndpoint() throws Exception {
 
             final MockHttpServletRequestBuilder builder = MockMvcRequestBuilders.get(REST_API_ENDPOINT + "/info")
                     .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -62,3 +65,4 @@ public class PublicControllerTest {
             Assertions.assertEquals("Some public info...", info.getInfo());
         }
 }
+

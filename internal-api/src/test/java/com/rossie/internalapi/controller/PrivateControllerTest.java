@@ -1,6 +1,7 @@
 package com.rossie.internalapi.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rossie.internalapi.config.TestConfig;
 import com.rossie.internalapi.configuration.WebSecurity;
 import com.rossie.internalapi.model.InfoResult;
 import org.junit.jupiter.api.Assertions;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -34,12 +36,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 )
 @ContextConfiguration(classes = {
         PrivateController.class,
-        WebSecurity.class
+        WebSecurity.class,
+        TestConfig.class
 })
-public class PrivateControllerTest {
+class PrivateControllerTest {
 
     private static final String REST_API_ENDPOINT = "/api/private/v1";
 
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Autowired
     private MockMvc mockMvc;
 
@@ -49,7 +53,7 @@ public class PrivateControllerTest {
     String apiKey = "A-VALID-KEYS6AZ9L0VLV0Y3jm3NDCM";
 
     @Test
-    public void shouldNotGetResultFromPrivateEndpointBecauseApiKeyIsInvalid() throws Exception {
+    void shouldNotGetResultFromPrivateEndpointBecauseApiKeyIsInvalid() throws Exception {
 
         final MockHttpServletRequestBuilder builder = MockMvcRequestBuilders.get(REST_API_ENDPOINT + "/info")
                 .header("X-API-Key", "INVALID_KEY")
@@ -57,14 +61,14 @@ public class PrivateControllerTest {
                 .accept(MediaType.APPLICATION_JSON)
                 .characterEncoding("UTF-8");
 
-        final MvcResult result = this.mockMvc.perform(builder)
+        this.mockMvc.perform(builder)
                 .andDo(print())
                 .andExpect(status().isUnauthorized())
                 .andReturn();
     }
 
     @Test
-    public void shouldGetResultFromPrivateEndpointWithApiKey() throws Exception {
+    void shouldGetResultFromPrivateEndpointWithApiKey() throws Exception {
 
         final MockHttpServletRequestBuilder builder = MockMvcRequestBuilders.get(REST_API_ENDPOINT + "/info")
                 .header("X-API-Key", apiKey)
@@ -81,4 +85,5 @@ public class PrivateControllerTest {
         Assertions.assertEquals("Some private info...", info.getInfo());
     }
 }
+
 
